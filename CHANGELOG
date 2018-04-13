@@ -1,5 +1,8 @@
+KOR.ru API, Version 0.0.2
+----------------
+CHANGELOG
+----------------
 Version 0.0.1:
 Aded Ajax.js file
 Version 0.0.2:
-soon
-first auth 
+first auth (see auth.js file)
