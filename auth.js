@@ -1,30 +1,41 @@
 var rp = require('request-promise');
-var fs = require('fs-sync');
-// var querystring = require('querystring');
-const test=1; //режим тестирования настроения
-var mood="mood"; //новое настроение
-//заполни куки
-var cookie={
-  last_logged_user_customer_id:'', //not const
-  __utma:'',
-  __utmz:'',
-  _ym_uid:'1516119582257435681',
-  sbsid:'', //not const
-  tzo:-3
+var querystring = require('querystring');
+var color = require('chalk');
+
+const test=1;
+
+const mood=""; //твое настроение
+const nick=""; //твой ник
+
+class KORERROR{
+  constructor(arg){
+    console.error(arg);
+  }
 }
-tmp="";
-for(i in cookie) tmp+=`${i}=${cookie[i]}; `;
-var cookie = tmp.slice(0,-2); //delete the last ;\s
-delete tmp;
-console.log("Кука:" + cookie);
+var cookie={
+  last_logged_user_customer_id:'', //editable
+  __utma:'133173652.540521041.1516119582.1516119582.1516119582.1',
+  __utmz:'133173652.1516119582.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)',
+  _ym_uid:'1516119582257435681', //const
+  sbsid:'', //editable
+  tzo:-3 //const
+}
+var create_cookie=(cookie)=>{
+  var tmp="";
+  for(i in cookie) tmp+=`${i}=${cookie[i]}; `;
+  var cookie = tmp.slice(0,-2); //delete the last ;\s
+  return cookie;
+}
+var cookie=create_cookie(cookie);
+console.log("Кука: \n" + cookie);
 var options = {
     method: 'POST',
     uri:'http://kor.ru/login/',
     formData: {
         // Like <input type="text" name="name">
         login: 'login',
-        password: 'parol',
-        return_url: '',
+        password: 'password',
+        return_url: ''
     },
     headers: {
       'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -32,7 +43,7 @@ var options = {
       'Accept-Language':'ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3',
       'Cache-Control':'no-cache',
       'Connection':'keep-alive',
-      //'Content-Length':Buffer.byteLength("mood=mood2"), //automatic set,defaul 56
+      //'Content-Length':, //automatic set
       'Content-Type':'application/x-www-form-urlencoded',
       'Cookie':cookie,
       'Host':'www.kor.ru',
@@ -47,20 +58,20 @@ var options = {
 };
 if(test){
   //тестируем отправку настроения
-  //поправь ник
-  var mood="mood=" + mood;
-  options['uri']='http://tirzon.kor.ru/blog/add/ajax_mood/';
-  options['body']=mood;
-  options['headers']['Refer']='http://tirzon.kor.ru/';
-  options['headers']['Host']='tirzon.kor.ru';
-  options['headers']['Content-Length']=Buffer.byteLength(mood);
+  let body=querystring.stringify({mood:mood}); //превращаем настроение в строку запроса
+  options['uri']=`http://${nick}.kor.ru/blog/add/ajax_mood/`;
+  options['body']=body;
+  options['headers']['Refer']=`http://${nick}.kor.ru/`;
+  options['headers']['Host']=`${nick}.kor.ru`;
+  options['headers']['Content-Length']=Buffer.byteLength(body);
   options['headers']['Content-Type']='application/x-www-form-urlencoded; charset=UTF-8';
   options['headers']['X-Requested-With']='XMLHttpRequest';
-  options['formData']="" //
+  options['formData']=""
 }
 rp(options)
     .then( (response) => {
-        // POST succeeded...
+        // успешный POST запрос
+        /*
         const headers = response.headers;
         const location = headers.location;
         try{
@@ -70,17 +81,13 @@ rp(options)
         catch(e){
           console.log("no location in headers")
         }
-        console.log(response.body);
-        console.log(response.statusCode);
-        console.log(response.headers);
-        // console.log(nick);
-        var json = {};
-        json.location=location;
-        json['set-cookie']=headers['set-cookie'];
-        json=JSON.stringify(json);
-        fs.write('config.json',json);
+        */
+        if(response.statusCode>=500) throw KORERROR("Invalid")
+        console.log(color.bold.green('Status code: ') + response.statusCode);
+        console.log(color.bold.green('Body:\n') + response.body);
+        console.log(color.bold.green('Headers:\n'), response.headers);
     })
     .catch( (err) => {
-        // POST failed...
-        console.error('Error in request' + err);
+        // POST запрос прошел с фатальной ошибкой
+        console.error(color.bold.red('Error in request: ') + err);
     });
