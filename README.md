@@ -1,2 +1,4 @@
-# korapi
-Unofficiall api for kor.ru
+# Korapi
+Неофициальное апи для kor.ru
+Находится в активной разработке
+Pull requests приветствуются!

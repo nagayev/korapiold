@@ -164,3 +164,23 @@ cache : false,
 success:(xml)=>alert(xml)
 });
 */
+//регестрация
+$.ajax({
+	type:"POST",
+	data:{
+		classs:'warrior',
+		email:'email@server.ru',
+		face:6,
+		hair:3,
+		hair_color:2,
+		nick:"Кенвир Смелый",
+		password1:"parol1",
+		password2:"parol2",
+		race:'race_2', //2 elfs, 1 man(people)
+		ref:0,
+		sex:'male',
+		source:'plain'
+	},
+	url:'http://kor.ru/join/req_pers,
+	successful:(data)=>alert(data)	
+});
