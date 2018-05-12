@@ -11,7 +11,7 @@ var error=arg=>console.log(color.bold.red("ERROR:" + arg));
 var normal=arg=>console.log(color.bold.green(arg));
 var warn=arg=>console.log(color.bold.yellow("WARNING:" + arg));
 
-var nick="OniiChan"; //можно const
+var nick=""; //можно const
 
 class KorApi{
     constructor(){
