@@ -1,7 +1,27 @@
-var {korapi} = require('./class.js');
+(async()=>{
+    //тут код клиента
+    var {korapi} = require('./class.js');
 
-var input = require('readline-sync').question; //консольный ввод
-
+    function input(message) {
+        return new Promise((resolve, reject) => {
+            process.stdin.resume();
+            process.stdin.setEncoding('utf8');
+            let input_string = '';
+            console.log(message);
+            process.stdin.on('data', function(chunk) {
+              input_string += chunk;
+              //НЕ ЭМИТИТЬ END
+              process.stdin.pause();
+              resolve(input_string);
+            });
+             
+            process.stdin.on('end', function() {
+                //конец stdin,инпуту пипец.не эмить!
+                process.stdin.pause();
+                resolve(input_string);
+            });
+        });
+    }
 var welcome = 'Welcome to kor console client\n\
 Tap help to get help';
 
@@ -25,58 +45,62 @@ console.log(welcome);
 var API = new korapi();
 var consoleAPILaunched = true;
 
+String.prototype.trim=function(){
+    return this.replace(/^\s+|\s+$/g,"");
+}
+
 while (consoleAPILaunched)
 {
-    var inputString = input("Type your command:> ");
-
-    if (inputString == "help") 
+    var inputString = await input("Type your command:> ");
+    var inputString = inputString.trim(); //удаляем всякий хлам из ввода типа \n
+    if (inputString == "help" || inputString == "помощь") 
     {
         console.log(help);
     }
-    else if (inputString == "exit" || inputString == ".exit")
+    else if (inputString == "exit" || inputString == "выход")
     {
         consoleAPILaunched = false;
     }
-    else if (inputString == "set mood")
+    else if (inputString == "set mood" || inputString == "задать настроение")
     {
-        let new_mood = input("Enter new mod:> ");
+        let new_mood = await input("Enter new mood:> ");
         API.sendMood(new_mood);
     }
-    else if (inputString == "delete mood")
+    else if (inputString == "delete mood" || inputString == "удалить настроение")
     {
         API.deleteMood();
     }
-    else if (inputString == "new post")
+    else if (inputString == "new post" || inputString == "новый пост")
     {
         let newPost = {};
-        newPost.subj = input_string("Enter subject:> "); 
-        newPost.message = input_string("Enter post message:> ");
-        newPost.tags = input_string("Enter the tags:> ");
-        newPost.comments_idea = input_string("0-Comments is enable, 1-comments is disable ");
-        newPost.who_idea = input_string("Post for All (0), friends (1), me (2):> ")
+        newPost.subj = await input("Enter subject:> "); 
+        newPost.message = await input("Enter post message:> ");
+        newPost.tags = await input("Enter the tags:> ");
+        newPost.comments_idea = await input("0-Comments is enable, 1-comments is disable ");
+        newPost.who_idea = await input("Post for All (0), friends (1), me (2):> ")
         API.sendPost(newPost);
     }
-    else if (inputString == "delete post")
+    else if (inputString == "delete post" || inputString == "удалить пост")
     {
-        let ID = input("Enter the post ID:> ");
+        let ID = await input("Enter the post ID:> ");
         API.deletePost(ID);
     }
-    else if (inputString == "delete album")
+    else if (inputString == "delete album" || inputString == "удалить альбом")
     {
-        let ID = input_string("Enter the album ID:> ");
+        let ID = await input("Enter the album ID:> ");
         API.deletePhotoAlbum(ID);
     }
     else if (inputString == "add favourite")
     {
-        let ID = input_string("Enter the post ID:> ");
+        let ID = await input("Enter the post ID:> ");
         API.addtoFavourites(ID);
     }
     else if (inputString == "delete favourite")
     {
-        let ID = input_string("Enter the post ID:> ");
+        let ID = await input("Enter the post ID:> ");
         API.deletefromFavourites(ID);
     }
-    else if (inputString == "clear")
+    else if (inputString == "clear" || inputString == "cls" || inputString == "очистить")
     {
         console.log("\u001B[2J\u001B[0;0f")
     }
@@ -84,10 +108,5 @@ while (consoleAPILaunched)
     {
         console.log(errorMassage);
     }
-    console.log("\n");
 }
-
-// Изменил код стайл. Просто планирую дальше этим файлом заниматься
-// Изменил имена переменных - на будущее поменять надо все на читаемые и понятные, без сокращений. Не меняю твой стиль названия переменных, но лучше сделать API
-// в целом как и ID и другие сложные сокращения.
-// Исправил английский язык - были небольшие ошибки. Я сам не особо умный и обычно переводчик использую, но там явные были.
+})(); //end of file
