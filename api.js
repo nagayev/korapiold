@@ -1,4 +1,11 @@
-//New korapi
+/*
+Project:korapi
+Homepage:https://github.com/nagayev/korapi
+Programmers:nagayev
+License:see License file
+Description:
+The main file with api class KorApi
+*/
 
 //All necessery imports
 const request = require('sync-request');
@@ -11,7 +18,7 @@ var error=arg=>console.log(color.bold.red("ERROR:" + arg));
 var normal=arg=>console.log(color.bold.green(arg));
 var warn=arg=>console.log(color.bold.yellow("WARNING:" + arg));
 
-var nick=""; //можно const
+var nick="tirzon"; //можно const
 
 class KorApi{
     constructor(){
@@ -19,21 +26,23 @@ class KorApi{
         this.cookie.tzo=new Date().getTimezoneOffset()/60; //устанавливаем нужную зону
         this.cookie=this.create_cookie(this.cookie);
         this.baseurl='http://' + nick + '.kor.ru/';
+        this.login='sidorovmarat1995@gmail.com';
+        this.password='102002';
     }
     req(method="POST",url="http://kor.ru/login/",body=null,header={}){
         var stdheaders={
             'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Encoding':'gzip, deflate',
             'Accept-Language':'ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3',
-            'Cache-Control':'no-cache',
+            //'Cache-Control':'no-cache',
             'Connection':'keep-alive',
             //'Content-Length':, //automatic set
             'Content-Type':'application/x-www-form-urlencoded',
             'Cookie':this.cookie,
             'Host':'www.kor.ru',
-            'Pragma':'no-cache',
+            //'Pragma':'no-cache',
             'Refer':'http://www.kor.ru',
-            'Upgrade-Insecure-Requests':'1',
+            //'Upgrade-Insecure-Requests':'1',
             'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0'
         }
         var headers=Object.assign({},stdheaders,header);
@@ -42,11 +51,36 @@ class KorApi{
             //body:body, //querystring body
             followAllRedirects:false
         }
-        if(body!=null) options.body=body; //if body exists,add body
+        if(body!=null) options.body=querystring.stringify(body); //if body exists,add body
         var r=request(method,url,options);
-        //console.log(r.headers);
-        if(body==null && header=={}) assert(r.url,this.baseurl) //auth nick test
         return r;
+    }
+    auth(){
+        var url='http://www.kor.ru/login/'
+        var r=this.req();
+        var sbsid=this.unzip_cookie(r.headers['set-cookie'][0]).sbsid;
+        console.log(r.headers);
+        console.log('Sbsid:',sbsid);
+        //assert(sbsid!=undefined);
+        var body={
+            login:this.login,
+            password:this.password,
+            return_url:''
+        };
+        console.log('Body: ',body);
+        var cookie=this.create_cookie({sbsid:sbsid})
+        console.log(cookie);
+        var headers={
+            'Cookie':cookie,
+            'Pragma':undefined,
+            'Cache-Control':undefined
+        }
+        var r=this.req('POST',url,body,headers);
+        console.log(r.headers);
+    }
+    assert(){
+        let url = this.req().url;
+        return assert(url,this.baseurl);
     }
     sendPost(obj){
         var url=`http://${nick}.kor.ru/blog/add/ajax_text/`;
@@ -62,7 +96,6 @@ class KorApi{
         */
         obj.message_id=0;
         var headers={};
-        var body=querystring.stringify(obj);
         headers['Refer']=`http://${nick}.kor.ru/`;
         headers['Host']=`${nick}.kor.ru`;
         //options['headers']['Content-Length']=Buffer.byteLength(body);
@@ -90,7 +123,6 @@ class KorApi{
     sendMood(mood){
         var url = `http://${nick}.kor.ru/blog/add/ajax_mood/`;
         var body = {mood:mood};
-        var body = querystring.stringify(body);
         var headers={};
         headers['Content-Type']='application/x-www-form-urlencoded; charset=UTF-8';
         headers['Refer']=`http://${nick}.kor.ru/`;
@@ -103,7 +135,6 @@ class KorApi{
     deleteMood(){
         var url = `http://${nick}.kor.ru/blog/delete/ajax_mood/`;
         var body = {mood:''};
-        var body = querystring.stringify(body);
         var headers={};
         headers['Content-Type']='application/x-www-form-urlencoded; charset=UTF-8';
         headers['Refer']=`http://${nick}.kor.ru/`;
@@ -113,10 +144,9 @@ class KorApi{
         console.log(r.body.toString('utf-8'));
         return r;
     }
-    sendFriendRequest(user,id){
+    sendFriendRequest(user,user_id){
         var url = `http://${user}.kor.ru/relationship/add_friend_request/`;
-        var body = {'to_user':id};
-        var body = querystring.stringify(body);
+        var body = {'to_user':user_id};
         var headers={};
         headers['Refer']=`http://${user}.kor.ru/`;
         headers['Host']=`${user}.kor.ru`;
@@ -166,17 +196,128 @@ class KorApi{
         console.log(r_body);
         return r;
     }
+    addComment(message,post_id){
+        var url = `http://${nick}.kor.ru/newspaper/add_comment/`;
+        var body = {
+            comment_id:0, //new
+            comment_message:message,
+            in_reply:0,
+            postd_id:post_id //post с новостями
+        };
+        var r = this.req('POST',url,body,headers); 
+        var r_body = r.body.toString('utf-8');
+        console.log(r_body);
+        return r;       
+    }
+    voteComment(id,val){
+        //value is minus/plus
+        if(val!="minus" || val !="plus") throw new ValueError("Invalid value");
+        var _ = +new Date;
+        var url = `http://${nick}.kor.ru/blog/comments/vote/?comment_id=${id}&value=${val}&_=${_}`;
+        var body = null;
+        var headers={};
+        headers['Refer']=`http://${nick}.kor.ru/newspaper/256`; //FIXME: Invalid Refer
+        headers['Host']=`${nick}.kor.ru`;
+        headers['X-Requested-With']='XMLHttpRequest';
+        var r = this.req('GET',url,body,headers);
+        var r_body = r.body.toString('utf-8');
+        console.log(r_body);
+        return r;
+    }
+    postComment(message,post_id){
+        var url = `http://${nick}.kor.ru/blog/add/comment/`;
+        var body = {
+            comment_id:0,
+            comment_message:message,
+            in_reply:0,
+            post_id:post_id
+        };
+        var headers={};
+        headers['Host']=`${nick}.kor.ru`;
+        headers['Referer']=`${nick}.kor.ru/blog/comments/${post_id}`;
+        var r = this.req('GET',url,body,headers);
+        var r_body = r.body.toString('utf-8');
+        console.log(r_body);
+        return r;
+    }
+    sendGift(comment,gift_id,user,user_id){
+        var url = `http://${user}.kor.ru/gifts/send/`;
+        var body={
+            comment:comment,
+            gift_id:gift_id,
+            to_user:user_id
+        };
+        var headers={};
+        headers['Host']=`${user}.kor.ru`;
+        headers['Referer']=`${user}.kor.ru/`;
+        headers['X-Requested-With']='XMLHttpRequest';
+        headers['Content-Type']='application/x-www-form-urlencoded; charset=UTF-8';
+        var r = this.req('POST',url,body,headers);
+        var r_body = r.body.toString('utf-8');
+        console.log(r_body);
+        return r;
+    }
+    saveDetails(body){
+        //FIXME: Error 
+        var url = `http://${nick}.kor.ru/save_details/`;
+        var headers={};
+        headers['Accept']='application/xml, text/xml, */*; q=0.01';
+        headers['Host']=`${nick}.kor.ru`;
+        headers['Referer']=`http://${nick}.kor.ru/`;
+        headers['X-Requested-With']='XMLHttpRequest';
+        headers['Content-Type']='application/x-www-form-urlencoded; charset=UTF-8';
+        var r = this.req('POST',url,body,headers);
+        var r_body = r.body.toString('utf-8');
+        console.log(r_body);
+        return r;
+    }
+    mute(user,user_id){
+        var url = `http://${user}.kor.ru/relationship/add_to_ignore/`;
+        var headers={};
+        headers['Accept']='application/xml, text/xml, */*; q=0.01';
+        headers['Host']=`${user}.kor.ru`;
+        headers['Referer']=`http://${user}.kor.ru/`;
+        headers['X-Requested-With']='XMLHttpRequest';
+        headers['Content-Type']='application/x-www-form-urlencoded; charset=UTF-8';
+        var body = {
+            to_user:user_id
+        };
+        var r = this.req('POST',url,body,headers);
+        var r_body = r.body.toString('utf-8');
+        console.log(r_body);
+        return r;
+    }
+    unmute(user,user_id){
+        var url = `http://${user}.kor.ru/relationship/unignore/`;
+        var headers={};
+        headers['Accept']='application/xml, text/xml, */*; q=0.01';
+        headers['Host']=`${user}.kor.ru`;
+        headers['Referer']=`http://${user}.kor.ru/`;
+        headers['X-Requested-With']='XMLHttpRequest';
+        headers['Content-Type']='application/x-www-form-urlencoded; charset=UTF-8';
+        var body = {
+            to_user:user_id
+        };
+        var r = this.req('POST',url,body,headers);
+        var r_body = r.body.toString('utf-8');
+        console.log(r_body);
+        return r;
+    }
     create_cookie(cookie){
+        if(typeof cookie!='object') throw new TypeError;
         var tmp="";
         for(let i in cookie) tmp+=`${i}=${cookie[i]}; `;
         return tmp.slice(0,-2); //delete the last '; '
     }
+    unzip_cookie(cookie){
+        if(typeof cookie!='string') throw new TypeError;
+        var ret={};
+        var tmp=cookie.split('; ') //['sbsid=lala','Domain=.kor.ru',...]
+        for(let i=0;i<tmp.length;i++){
+            var temp=tmp[i].split('=');
+            ret[temp[0]]=temp[1];
+        }
+        return ret;
+    }
 }
-//var test = new KorApi();
-//test.req(); //auth using cookie
-//test.sendPost("Hello!");
-//test.sendMood("Mood");
-//test.sendFriendRequest("demfarbar",5078762);
-//test.deletePhotoAlbum(1);
-//test.deletePost(2807800);
-exports.korapi=KorApi; //НЕ УДАЛЯТЬ
+exports.korapi=KorApi; 
