@@ -26,23 +26,23 @@ class KorApi{
         this.cookie.tzo=new Date().getTimezoneOffset()/60; //устанавливаем нужную зону
         this.cookie=this.create_cookie(this.cookie);
         this.baseurl='http://' + nick + '.kor.ru/';
-        this.login='sidorovmarat1995@gmail.com';
-        this.password='102002';
+        this.login='email@server.com';
+        this.password='password';
     }
     req(method="POST",url="http://kor.ru/login/",body=null,header={}){
         var stdheaders={
             'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Encoding':'gzip, deflate',
             'Accept-Language':'ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3',
-            //'Cache-Control':'no-cache',
+            'Cache-Control':'no-cache',
             'Connection':'keep-alive',
             //'Content-Length':, //automatic set
             'Content-Type':'application/x-www-form-urlencoded',
             'Cookie':this.cookie,
             'Host':'www.kor.ru',
-            //'Pragma':'no-cache',
+            'Pragma':'no-cache',
             'Refer':'http://www.kor.ru',
-            //'Upgrade-Insecure-Requests':'1',
+            'Upgrade-Insecure-Requests':'1',
             'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0'
         }
         var headers=Object.assign({},stdheaders,header);
@@ -302,6 +302,38 @@ class KorApi{
         var r_body = r.body.toString('utf-8');
         console.log(r_body);
         return r;
+    }
+    addtoEnemie(user,user_id){
+        var url = `http://${user}.kor.ru/relationship/add_to_enemies/`;
+        var headers={};
+        headers['Accept']='application/xml, text/xml, */*; q=0.01';
+        headers['Host']=`${user}.kor.ru`;
+        headers['Referer']=`http://${user}.kor.ru/`;
+        headers['X-Requested-With']='XMLHttpRequest';
+        headers['Content-Type']='application/x-www-form-urlencoded; charset=UTF-8';
+        var body = {
+            enemy_id:user_id
+        };
+        var r = this.req('POST',url,body,headers);
+        var r_body = r.body.toString('utf-8');
+        console.log(r_body);
+        return r;   
+    }
+    deletefromEnemie(user,user_id){
+        var url = `http://${user}.kor.ru/relationship/remove_from_enemies/`;
+        var headers={};
+        headers['Accept']='application/xml, text/xml, */*; q=0.01';
+        headers['Host']=`${user}.kor.ru`;
+        headers['Referer']=`http://${user}.kor.ru/`;
+        headers['X-Requested-With']='XMLHttpRequest';
+        headers['Content-Type']='application/x-www-form-urlencoded; charset=UTF-8';
+        var body = {
+            enemy_id:user_id
+        };
+        var r = this.req('POST',url,body,headers);
+        var r_body = r.body.toString('utf-8');
+        console.log(r_body);
+        return r;   
     }
     create_cookie(cookie){
         if(typeof cookie!='object') throw new TypeError;
