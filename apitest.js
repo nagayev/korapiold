@@ -1,12 +1,12 @@
 /*
 Project:korapi
 Homepage:https://github.com/nagayev/korapi
-Programmer:nagayev
+Programmers:nagayev
 License:see License file
 Description:
 Tests for korapi
 */
-var {korapi} = require('./new.js');
+var {korapi} = require('./api.js');
 var color = require('chalk').bold;
 const debug=1;
 
@@ -27,7 +27,7 @@ var details={
     motto:'', //девиз
     name:''
 };
-api.req();
+api.assert();
 /*
 api.sendPost("Hello!");
 api.sendMood("Mood");
@@ -36,4 +36,5 @@ api.deletePhotoAlbum(1);
 api.deletePost(2807800);
 api.deleteMood();
 */
-//api.saveDetails(details); //not working yet
+api.saveDetails(details); //FIXME:not working yet
+api.unmute('demfarbar',5078762); //FIXME: error
