@@ -26,6 +26,7 @@ var welcome = 'Welcome to kor console client\n\
 Tap help to get help';
 
 var help = 'help - show help\n\
+login - login in the game\n\
 exit - exit\n\
 set mood - send mood\n\
 delete mood - delete mood\n\
@@ -35,7 +36,7 @@ delete album - delete photoalbum\n\
 add favourite - add post to favourite\n\
 delete favourite - delete post from favourites\n\
 clear - clear screen\n\
-';
+add friend - add a friend by his nickname and ID\n';
 
 var errorMassage = 'Command not found\n\
 Use help to get help';
@@ -104,9 +105,21 @@ while (consoleAPILaunched)
     {
         console.log("\u001B[2J\u001B[0;0f")
     }
+    else if (inputString == "add friend")
+    {
+        let nickname = await input("Enter the user nickname:> ");
+        let ID = await input("Enter the user ID:> ");
+        sendFriendRequest(nickname, ID);
+    }
+    else if (inputString = "login")
+    {
+        let username = await input("Enter the username or e-mail:> ");
+        let password = await input("Enter the password:> ");
+        // login
+    }
     else
     {
         console.log(errorMassage);
     }
 }
-})(); //end of file
+})();
