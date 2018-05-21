@@ -9,7 +9,7 @@ Use api in new.js
 */
 (async()=>{
     //тут код клиента
-    var {korapi} = require('./class.js');
+    var {korapi} = require('./api.js');
 
     function input(message) {
         return new Promise((resolve, reject) => {
@@ -45,7 +45,9 @@ delete album - delete photoalbum\n\
 add favourite - add post to favourite\n\
 delete favourite - delete post from favourites\n\
 clear - clear screen\n\
-add friend - add a friend by his nickname and ID\n';
+add friend - add a friend by his nickname and ID\n\
+ban - add a enemy \n\
+unban - unban smb \n';
 
 var errorMassage = 'Command not found\n\
 Use help to get help';
@@ -118,13 +120,26 @@ while (consoleAPILaunched)
     {
         let nickname = await input("Enter the user nickname:> ");
         let ID = await input("Enter the user ID:> ");
-        sendFriendRequest(nickname, ID);
+        API.sendFriendRequest(nickname, ID);
     }
-    else if (inputString = "login")
+    else if (inputString == "login")
     {
         let username = await input("Enter the username or e-mail:> ");
         let password = await input("Enter the password:> ");
         // login
+        //FIXME: NOT_IMPLEMENTED_YET
+    }
+    else if (inputString == "ban")
+    {
+        let nickname = await input("Enter the user nickname:> ");
+        let ID = await input("Enter the user ID:> ");
+        API.addtoEnemie(nickname,ID);  
+    }
+    else if (inputString == "unban")
+    {
+        let nickname = await input("Enter the user nickname:> ");
+        let ID = await input("Enter the user ID:> ");
+        API.deletefromEnemie(nickname,ID);  
     }
     else
     {
