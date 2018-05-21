@@ -1,3 +1,12 @@
+/*
+Project:korapi
+Homepage:https://github.com/nagayev/korapi
+Programmers:nagayev,peytob
+License:see License file
+Description:
+Console client.
+Use api in new.js
+*/
 (async()=>{
     //тут код клиента
     var {korapi} = require('./class.js');
