@@ -1,0 +1,17 @@
+{
+  "name": "korapi",
+  "version": "1.0.0",
+  "description": "Unofficial api for kor.ru game",
+  "main": "api.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "nagayev <sidorovmarat1995@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^2.4.1",
+    "fs-sync": "^1.0.4",
+    "querystring": "^0.2.0",
+    "sync-request": "^6.0.0"
+  }
+}
