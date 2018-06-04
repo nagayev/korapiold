@@ -13,6 +13,7 @@ const querystring = require('querystring');
 const color = require('chalk'); //for debug
 const assert = require('assert').equal; //for debug
 const fs = require('fs-sync'); //for read cookie file
+const {JSDOM} = require('jsdom');
 //for debug
 var error=arg=>console.log(color.bold.red("ERROR:" + arg));
 var normal=arg=>console.log(color.bold.green(arg));
@@ -81,6 +82,28 @@ class KorApi{
     assert(){
         let url = this.req().url;
         return assert(url,this.baseurl);
+    }
+    getMobs(user){
+        var url = `http://${user}.kor.ru/information/`;
+        var headers = {};
+        headers['Refer']=`http://${nick}.kor.ru/`;
+        headers['Host']=`${nick}.kor.ru`;
+        var r = this.req('GET',url,null,headers);
+        var r_body = r.body.toString('utf-8');
+        var dom = new JSDOM(r_body).window.document;
+        var mobs = dom.querySelectorAll('.mob');
+        var ret = [];
+        console.log(mobs[0].innerHTML);
+        for(let i=0;i<mobs.length;i++){
+            var html_parse = new JSDOM(mobs[i].innerHTML).window.document;
+            ret[i]={
+                name:html_parse.querySelector('strong').textContent,
+                img:html_parse.querySelector('img').src,
+                count:html_parse.querySelector('.black').textContent,
+                lvl:html_parse.querySelector('.whois').textContent
+            }
+        }
+        return ret;
     }
     sendPost(obj){
         var url=`http://${nick}.kor.ru/blog/add/ajax_text/`;
@@ -353,3 +376,4 @@ class KorApi{
     }
 }
 exports.korapi=KorApi; 
+exports.build=4;
