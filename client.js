@@ -5,11 +5,16 @@ Programmers:nagayev,peytob
 License:see License file
 Description:
 Console client.
-Use api in new.js
+Use api in api.js 
 */
 (async()=>{
     //тут код клиента
-    var {korapi} = require('./api.js');
+    var {korapi,build} = require('./api.js');
+    var color = require('chalk');
+    const client_build = 4;
+
+    if(build<client_build) console.log(color.bold.red("WARN:Old Api detecked! Plz update api \033[91m"));
+    else if(build>client_build) console.log(color.bold.red('WARN:Old client! Plz update client'));
 
     function input(message) {
         return new Promise((resolve, reject) => {
@@ -19,15 +24,8 @@ Use api in new.js
             console.log(message);
             process.stdin.on('data', function(chunk) {
               input_string += chunk;
-              //НЕ ЭМИТИТЬ END
               process.stdin.pause();
               resolve(input_string);
-            });
-             
-            process.stdin.on('end', function() {
-                //конец stdin,инпуту пипец.не эмить!
-                process.stdin.pause();
-                resolve(input_string);
             });
         });
     }
@@ -47,7 +45,8 @@ delete favourite - delete post from favourites\n\
 clear - clear screen\n\
 add friend - add a friend by his nickname and ID\n\
 ban - add a enemy \n\
-unban - unban smb \n';
+unban - unban smb \n\
+get mobs - list of mobs \n';
 
 var errorMassage = 'Command not found\n\
 Use help to get help';
@@ -140,6 +139,21 @@ while (consoleAPILaunched)
         let nickname = await input("Enter the user nickname:> ");
         let ID = await input("Enter the user ID:> ");
         API.deletefromEnemie(nickname,ID);  
+    }
+    else if (inputString == "get mobs")
+    {
+        let nickname = await input("Enter the user nickname:> ");
+        nicname=nickname.trim();
+        nickname=nickname.replace(/\W+\s/g,''); 
+        let content = API.getMobs(nickname);
+        for(i=0;content.length;i++)
+        {
+            console.log("Name:",content[i].name);
+            console.log("Number:",content[i].count);
+            console.log("Level:",content[i].lvl);
+            //console.log("Image:",content[i].img); //ссылка на изображение
+            console.log('\n');
+        }
     }
     else
     {
